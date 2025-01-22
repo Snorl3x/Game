@@ -92,7 +92,7 @@
   </div>
 
   <script>
-   let timerElement = document.getElementById('timer');
+    let timerElement = document.getElementById('timer');
     let seconds = 0;
     let timerInterval;
 
@@ -134,8 +134,8 @@
       piece.addEventListener('touchmove', (e) => {
         const touchLocation = e.targetTouches[0];
         piece.style.position = "absolute";
-        piece.style.left = touchLocation.pageX + 'px';
-        piece.style.top = touchLocation.pageY + 'px';
+        piece.style.left = touchLocation.pageX - piece.offsetWidth / 2 + 'px';
+        piece.style.top = touchLocation.pageY - piece.offsetHeight / 2 + 'px';
         e.preventDefault();
       });
     });
@@ -166,15 +166,27 @@
       zone.addEventListener('touchend', (e) => {
         e.preventDefault();
         const draggingPiece = document.querySelector('.dragging');
-        const existingPiece = zone.firstElementChild;
+        const touchLocation = e.changedTouches[0];
+        const dropzoneRect = zone.getBoundingClientRect();
 
-        if (existingPiece) {
-          const originalParent = draggingPiece.parentElement;
-          originalParent.appendChild(existingPiece);
+        if (
+          touchLocation.pageX >= dropzoneRect.left &&
+          touchLocation.pageX <= dropzoneRect.right &&
+          touchLocation.pageY >= dropzoneRect.top &&
+          touchLocation.pageY <= dropzoneRect.bottom
+        ) {
+          const existingPiece = zone.firstElementChild;
+
+          if (existingPiece) {
+            const originalParent = draggingPiece.parentElement;
+            originalParent.appendChild(existingPiece);
+          }
+
+          zone.appendChild(draggingPiece);
+          checkPuzzleCompletion();
         }
 
-        zone.appendChild(draggingPiece);
-        checkPuzzleCompletion();
+        draggingPiece.classList.remove('dragging');
       });
     });
 
