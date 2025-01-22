@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Children's Puzzle Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #f0f8ff;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .puzzle-container {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-gap: 5px;
+      margin-top: 20px;
+    }
+
+    .puzzle-piece {
+      width: 100px;
+      height: 100px;
+      background-color: #ddd;
+      border: 2px solid #aaa;
+      text-align: center;
+      line-height: 100px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: grab;
+    }
+
+    .puzzle-piece.dragging {
+      opacity: 0.5;
+    }
+
+    .dropzone {
+      width: 100px;
+      height: 100px;
+      border: 2px dashed #aaa;
+      position: relative;
+    }
+
+    .completed {
+      background-color: #90ee90;
+      border: 2px solid #008000;
+    }
+
+    .controls {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Arrange the Puzzle!</h1>
+  <div id="timer">Time: 0s</div>
+  <div class="puzzle-container" id="puzzle-container">
+    <div class="dropzone" data-id="1"></div>
+    <div class="dropzone" data-id="2"></div>
+    <div class="dropzone" data-id="3"></div>
+    <div class="dropzone" data-id="4"></div>
+    <div class="dropzone" data-id="5"></div>
+    <div class="dropzone" data-id="6"></div>
+    <div class="dropzone" data-id="7"></div>
+    <div class="dropzone" data-id="8"></div>
+    <div class="dropzone" data-id="9"></div>
+  </div>
+
+  <div class="puzzle-container">
+    <div class="puzzle-piece" draggable="true" data-id="1">1</div>
+    <div class="puzzle-piece" draggable="true" data-id="2">2</div>
+    <div class="puzzle-piece" draggable="true" data-id="3">3</div>
+    <div class="puzzle-piece" draggable="true" data-id="4">4</div>
+    <div class="puzzle-piece" draggable="true" data-id="5">5</div>
+    <div class="puzzle-piece" draggable="true" data-id="6">6</div>
+    <div class="puzzle-piece" draggable="true" data-id="7">7</div>
+    <div class="puzzle-piece" draggable="true" data-id="8">8</div>
+    <div class="puzzle-piece" draggable="true" data-id="9">9</div>
+  </div>
+
+  <div class="controls">
+    <button id="restart">Restart</button>
+  </div>
+
+  <script>
+    let timerElement = document.getElementById('timer');
+    let seconds = 0;
+    let timerInterval;
+
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        seconds++;
+        timerElement.textContent = `Time: ${seconds}s`;
+      }, 1000);
+    }
+
+    function stopTimer() {
+      clearInterval(timerInterval);
+    }
+
+    startTimer();
+
+    const puzzlePieces = document.querySelectorAll('.puzzle-piece');
+    const dropzones = document.querySelectorAll('.dropzone');
+
+    puzzlePieces.forEach(piece => {
+      piece.addEventListener('dragstart', () => {
+        piece.classList.add('dragging');
+      });
+
+      piece.addEventListener('dragend', () => {
+        piece.classList.remove('dragging');
+      });
+    });
+
+    dropzones.forEach(zone => {
+      zone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+      });
+
+      zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const draggingPiece = document.querySelector('.dragging');
+        const existingPiece = zone.firstElementChild;
+
+        if (existingPiece) {
+          const originalParent = draggingPiece.parentElement;
+          originalParent.appendChild(existingPiece);
+        }
+
+        zone.appendChild(draggingPiece);
+        checkPuzzleCompletion();
+      });
+    });
+
+    function checkPuzzleCompletion() {
+      const isCorrect = Array.from(dropzones).every(zone => {
+        const piece = zone.firstElementChild;
+        return piece && piece.getAttribute('data-id') === zone.getAttribute('data-id');
+      });
+
+      if (isCorrect) {
+        stopTimer();
+        alert(`Puzzle Completed in ${seconds} seconds!`);
+        dropzones.forEach(zone => zone.classList.add('completed'));
+      }
+    }
+
+    document.getElementById('restart').addEventListener('click', () => {
+      location.reload();
+    });
+  </script>
+</body>
+</html>
