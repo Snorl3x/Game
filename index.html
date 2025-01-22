@@ -92,7 +92,7 @@
   </div>
 
   <script>
-    let timerElement = document.getElementById('timer');
+   let timerElement = document.getElementById('timer');
     let seconds = 0;
     let timerInterval;
 
@@ -120,6 +120,24 @@
       piece.addEventListener('dragend', () => {
         piece.classList.remove('dragging');
       });
+
+      piece.addEventListener('touchstart', (e) => {
+        piece.classList.add('dragging');
+        e.preventDefault();
+      });
+
+      piece.addEventListener('touchend', (e) => {
+        piece.classList.remove('dragging');
+        e.preventDefault();
+      });
+
+      piece.addEventListener('touchmove', (e) => {
+        const touchLocation = e.targetTouches[0];
+        piece.style.position = "absolute";
+        piece.style.left = touchLocation.pageX + 'px';
+        piece.style.top = touchLocation.pageY + 'px';
+        e.preventDefault();
+      });
     });
 
     dropzones.forEach(zone => {
@@ -128,6 +146,24 @@
       });
 
       zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const draggingPiece = document.querySelector('.dragging');
+        const existingPiece = zone.firstElementChild;
+
+        if (existingPiece) {
+          const originalParent = draggingPiece.parentElement;
+          originalParent.appendChild(existingPiece);
+        }
+
+        zone.appendChild(draggingPiece);
+        checkPuzzleCompletion();
+      });
+
+      zone.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+      });
+
+      zone.addEventListener('touchend', (e) => {
         e.preventDefault();
         const draggingPiece = document.querySelector('.dragging');
         const existingPiece = zone.firstElementChild;
